@@ -1,39 +1,17 @@
 import { Observable } from 'rxjs/Observable'
-/**
- * fruitsObservable表示数据的生产者
- * next是交付数据信息
- * error是交付错误信息
- * complete是通知没有订阅者没有交付的数据了
- * error和complete这2个只能发生其中一个，不论那个发生，都会中断执行的数据流
- * pull push 表示的数据的提取和推送
- */
-const fruitsObservable = Observable.create(observer => {
-  observer.next('apple')
-  observer.next('orage')
-  // observer.error(new Error('someone took my fruit.'))
-  setTimeout(() => {
-    observer.next('lem')
-    observer.complete()
-  }, 2000)
-})
+import 'rxjs/add/observable/fromEvent'
+import 'rxjs/add/operator/throttleTime'
+import 'rxjs/add/operator/debounceTime'
 /*
-  数据的使用者
+  发生事件
+  .throttleTime(1000)可以让发生事件间隔1秒交付数据
+  .debounceTime(1000)是数据一个接一个的流过来时，只要间隔不超过1秒，如果超过设置的1秒，就会发生事件，交付数据
  */
-const fruitsObserver = {
-  next: data => console.log(data),
-  error: error => console.log(error.message),
-  complete: () => console.log('done!')
-}
-
-console.log('----- before subscribe -----')
+const observable = Observable.fromEvent(
+  document.getElementById('search'),
+  'keyup'
+).debounceTime(1000)
 /*
-  订阅数据
+ 订阅observable
  */
-const fruitsSubscription = fruitsObservable.subscribe(fruitsObserver)
-console.log('----- after subscribe -----')
-/*
-  取消订阅数据
- */
-setTimeout(() => {
-  fruitsSubscription.unsubscribe()
-}, 1000)
+observable.subscribe(data => console.log('searching...'))
